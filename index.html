@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHODIQIN FAMILY EXPENSE (ONLINE)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* --- MODERN DARK THEME PALETTE --- */
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --card-glass: rgba(30, 41, 59, 0.7);
+            --card-border: 1px solid rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            /* Neon Colors */
+            --primary: #3b82f6;
+            --primary-glow: 0 0 15px rgba(59, 130, 246, 0.5);
+            
+            --expense: #ef4444;
+            --expense-glow: 0 0 10px rgba(239, 68, 68, 0.4);
+            
+            --debt: #f59e0b;
+            --debt-glow: 0 0 10px rgba(245, 158, 11, 0.4);
+            
+            --success: #10b981;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-main);
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+            position: relative;
+        }
+
+        /* --- HEADER & SETTINGS --- */
+        .header-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        h1 { 
+            text-align: center; 
+            margin: 0;
+            font-size: 1.6rem; 
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+        }
+
+        .settings-btn {
+            position: absolute;
+            right: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .settings-btn:hover { background: var(--primary); transform: rotate(90deg); }
+        
+        h2 { 
+            font-size: 1.1rem; 
+            margin: 0 0 20px 0; 
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- GLASSMORPHISM CARD --- */
+        .card {
+            background: var(--card-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 25px;
+            border-radius: 20px;
+            border: var(--card-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover { transform: translateY(-2px); }
+        .card-expense h2 { color: #fca5a5; text-shadow: var(--expense-glow); }
+        .card-debt h2 { color: #fcd34d; text-shadow: var(--debt-glow); }
+        .card-report h2 { color: #93c5fd; text-shadow: var(--primary-glow); }
+        
+        /* --- ADMIN PANEL SPECIFIC --- */
+        .card-admin {
+            border-left: 4px solid #c084fc;
+            display: none; /* Hidden by default */
+        }
+        .card-admin h2 { color: #c084fc; }
+        .card-admin.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .admin-section {
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+        .admin-section:last-child { border-bottom: none; }
+        
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .category-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .category-tag span { cursor: pointer; color: #fca5a5; font-weight: bold; }
+        .category-tag span:hover { color: #ef4444; }
+
+        .btn-group { display: flex; gap: 10px; }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: #ccc; }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
+        .btn-danger:hover { background: #ef4444; color: white; }
+
+        /* --- FORMS --- */
+        .form-group { display: flex; gap: 10px; margin-bottom: 20px; }
+        
+        input, select {
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            border-radius: 12px;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        input:focus { 
+            border-color: var(--primary); 
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3); 
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- BUTTONS --- */
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
+        }
+        button:active { transform: scale(0.98); }
+
+        .btn-expense { background: linear-gradient(45deg, #dc2626, #ef4444); color: white; width: 100%; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        .btn-debt { background: linear-gradient(45deg, #d97706, #f59e0b); color: white; width: 100%; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); }
+        .btn-add-cat { background: #8b5cf6; color: white; white-space: nowrap; }
+
+        /* --- LISTS --- */
+        ul { list-style: none; padding: 0; margin-top: 20px; }
+        li {
+            background: rgba(255, 255, 255, 0.03);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.2s;
+        }
+        li:hover { background: rgba(255, 255, 255, 0.07); transform: translateX(5px); }
+
+        .item-info { display: flex; flex-direction: column; }
+        .item-name { font-weight: 600; font-size: 15px; color: #fff; }
+        .item-amount { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+        .item-actions { display: flex; gap: 8px; }
+        
+        button.delete { background: rgba(239, 68, 68, 0.1); color: #fca5a5; padding: 8px 12px; font-size: 16px; line-height: 1; border-radius: 8px; }
+        button.delete:hover { background: #ef4444; color: white; }
+        button.status-btn { padding: 6px 12px; font-size: 10px; border-radius: 20px; letter-spacing: 0; text-transform: none; }
+
+        /* --- TOTALS & BADGES --- */
+        .total-box {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .card-expense .total-box { color: #fca5a5; }
+        .card-debt .total-box { color: #fcd34d; }
+
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 9px; font-weight: 700; text-transform: uppercase; margin-left: 8px; }
+        .badge-lunas { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-belum { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+        /* --- FILTER (CUSTOM UI: DIRECT INPUT METHOD - 100% WORKS) --- */
+        .month-filter { 
+            margin-bottom: 30px; 
+            text-align: center; 
+        }
+        .month-label { 
+            display: block; 
+            margin-bottom: 10px; 
+            font-size: 12px; 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            letter-spacing: 1px; 
+        }
+        
+        /* Gaya Keren untuk Input Asli */
+        input[type="month"].styled-month-input {
+            appearance: none;
+            -webkit-appearance: none;
+            background: var(--card-glass);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            max-width: 250px;
+            text-align: center;
+            cursor: pointer;
+            outline: none;
+            color-scheme: dark; /* Agar kalender bawaan browser warnanya gelap/putih */
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        input[type="month"].styled-month-input:hover,
+        input[type="month"].styled-month-input:focus {
+             border-color: var(--primary);
+             box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+             background: rgba(255,255,255,0.1);
+        }
+
+        .summary-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; font-size: 14px; margin-bottom: 20px; }
+        .summary-table th { text-align: left; padding: 10px; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .summary-table td { background: rgba(255, 255, 255, 0.03); padding: 12px 15px; color: #fff; }
+        .summary-table tr td:first-child { border-radius: 8px 0 0 8px; }
+        .summary-table tr td:last-child { border-radius: 0 8px 8px 0; text-align: right; font-weight: 600;}
+
+        .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-box { background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .stat-value { font-size: 18px; font-weight: 700; color: #fff; }
+        .text-success { color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.3); }
+
+        .section-title { font-size: 12px; font-weight: 700; color: #60a5fa; margin: 30px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(96, 165, 250, 0.2); padding-bottom: 5px; display: inline-block; }
+        
+        /* Loading Indicator & Error Msg */
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: var(--primary); z-index: 9999; display: none; }
+        #errorMsg { position: fixed; bottom: 20px; right: 20px; background: #dc2626; color: white; padding: 10px 15px; border-radius: 8px; font-size: 12px; display: none; z-index: 9999; max-width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
+    </style>
+</head>
+<body>
+<div id="loading"></div>
+<div id="errorMsg"></div>
+
+<div class="container">
+    <div class="header-wrapper">
+        <h1>SHODIQIN EXPENSE</h1>
+        <button class="settings-btn" onclick="toggleAdminPanel()" title="Admin Panel">⚙️</button>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" class="card card-admin">
+        <h2>⚙️ Admin Panel</h2>
+        
+        <div class="admin-section">
+            <div class="section-title" style="margin-top:0">Kelola Kategori</div>
+            <p style="font-size:12px; color:#aaa; margin-bottom:10px">Tambah nama pengeluaran rutin.</p>
+            <div class="form-group" style="margin-bottom:10px">
+                <input type="text" id="newCategory" placeholder="Kategori Baru (cth: Laundry)">
+                <button class="btn-add-cat" onclick="addCategory()">+ Tambah</button>
+            </div>
+            <div class="tag-container" id="categoryList">
+                <span style="font-size:12px; color:#666">Memuat kategori...</span>
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <div class="section-title">Backup & Restore</div>
+            <p style="font-size:12px; color:#aaa; margin-bottom:10px">Data tersimpan di Cloud Firebase. Gunakan tombol ini untuk download arsip JSON.</p>
+            <div class="btn-group">
+                <button class="btn-outline" onclick="exportData()" style="flex:1">⬇️ Backup (Download JSON)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER BULAN (FIXED: DIRECT INPUT) -->
+    <div class="month-filter">
+        <span class="month-label">PILIH PERIODE</span>
+        <!-- Input Asli Langsung Ditampilkan & Di-style -->
+        <input type="month" id="monthPicker" class="styled-month-input">
+    </div>
+
+    <!-- BAGIAN 1: PENGELUARAN -->
+    <div class="card card-expense">
+        <h2>💸 Pengeluaran Bulanan</h2>
+        
+        <div class="form-group">
+            <input type="text" id="expenseName" list="dynamicExpenses" placeholder="Nama (Cth: Listrik)">
+            <datalist id="dynamicExpenses">
+                <!-- Datalist filled via Firestore -->
+            </datalist>
+            <input type="number" id="expenseAmount" placeholder="Rp 0">
+        </div>
+        <button class="btn-expense" onclick="addExpense()">+ Tambah Pengeluaran</button>
+
+        <ul id="expenseList">
+            <li style="justify-content:center; opacity:0.5; border:none">
+                <span id="expenseStatus">Menunggu koneksi...</span>
+            </li>
+        </ul>
+
+        <div class="total-box">
+            <span style="font-size:12px; font-weight:400; display:block; margin-bottom:5px; opacity:0.8">TOTAL BULAN INI</span>
+            <span id="totalExpense">...</span>
+        </div>
+    </div>
+
+    <!-- BAGIAN 2: PIUTANG -->
+    <div class="card card-debt">
+        <h2>🤝 Piutang (Dipinjam Orang)</h2>
+        
+        <div class="form-group">
+            <input type="text" id="debtName" placeholder="Nama Peminjam">
+            <input type="number" id="debtAmount" placeholder="Rp 0">
+        </div>
+        <button class="btn-debt" onclick="addDebt()">+ Catat Pinjaman</button>
+
+        <ul id="debtList">
+             <li style="justify-content:center; opacity:0.5; border:none">
+                <span id="debtStatus">Menunggu koneksi...</span>
+             </li>
+        </ul>
+
+        <div class="total-box">
+            <span style="font-size:12px; font-weight:400; display:block; margin-bottom:5px; opacity:0.8">TOTAL BELUM LUNAS</span>
+            <span id="totalUnpaid">...</span>
+        </div>
+    </div>
+
+    <!-- BAGIAN 3: LAPORAN -->
+    <div class="card card-report">
+        <h2>📊 Laporan & Analisa</h2>
+        
+        <div class="section-title">Status Piutang Global</div>
+        <div class="summary-grid">
+            <div class="stat-box">
+                <div class="stat-label">Total Dipinjamkan</div>
+                <div class="stat-value" id="globalDebt">...</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Sudah Kembali</div>
+                <div class="stat-value text-success" id="globalPaid">...</div>
+            </div>
+        </div>
+
+        <div class="section-title">Riwayat per Bulan</div>
+        <table class="summary-table">
+            <thead>
+                <tr><th>Bulan</th><th style="text-align:right">Total</th></tr>
+            </thead>
+            <tbody id="monthlySummaryTable"></tbody>
+        </table>
+
+        <div class="section-title">Riwayat per Tahun</div>
+        <table class="summary-table">
+            <thead>
+                <tr><th>Tahun</th><th style="text-align:right">Total Tahunan</th></tr>
+            </thead>
+            <tbody id="yearlySummaryTable"></tbody>
+        </table>
+
+        <p style="font-size: 11px; color: var(--text-muted); margin-top: 25px; text-align: center; opacity: 0.5;">
+            *Terhubung ke Firebase (Cloud Storage)
+        </p>
+    </div>
+</div>
+
+<!-- FIREBASE MODULE SCRIPT -->
+<script type="module">
+    // Import Firebase SDKs
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+    // Konfigurasi Anda
+    const firebaseConfig = {
+        apiKey: "AIzaSyByWsDYkiOypzIQhVXPfLXrQ7FbsQfev1o",
+        authDomain: "expense-b5f9f.firebaseapp.com",
+        projectId: "expense-b5f9f",
+        storageBucket: "expense-b5f9f.firebasestorage.app",
+        messagingSenderId: "593265327326",
+        appId: "1:593265327326:web:5ce0d55188fbd5e1d7564f",
+        measurementId: "G-3H7Y989W9W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // --- GLOBAL VARIABLES ---
+    let expenses = [];
+    let debts = [];
+    let categories = [];
+    let currentUser = null;
+
+    const monthPicker = document.getElementById('monthPicker');
+    
+    // Set default month
+    const currentProps = new Date();
+    const defaultMonthValue = `${currentProps.getFullYear()}-${String(currentProps.getMonth()+1).padStart(2, '0')}`;
+    monthPicker.value = defaultMonthValue;
+
+    // Saat user memilih tanggal di picker
+    monthPicker.addEventListener('change', () => {
+        render(); // Re-render data saat bulan berubah
+    });
+
+    // --- AUTHENTICATION FLOW ---
+    
+    function showError(msg) {
+        const el = document.getElementById('errorMsg');
+        el.innerText = msg;
+        el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 5000);
+    }
+
+    function setupRealtimeListeners(user) {
+        const qCats = query(collection(db, "categories"), orderBy("name"));
+        onSnapshot(qCats, (snapshot) => {
+            categories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderCategories();
+        });
+
+        const qExpenses = query(collection(db, "expenses"), orderBy("createdAt", "desc"));
+        onSnapshot(qExpenses, (snapshot) => {
+            expenses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            render(); 
+        }, (error) => {
+            document.getElementById('expenseStatus').innerText = "Gagal memuat data.";
+        });
+
+        const qDebts = query(collection(db, "debts"), orderBy("createdAt", "desc"));
+        onSnapshot(qDebts, (snapshot) => {
+            debts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            render(); 
+        }, (error) => {
+            document.getElementById('debtStatus').innerText = "Gagal memuat data.";
+        });
+    }
+
+    signInAnonymously(auth).catch((error) => {
+        showError("Gagal Login ke Database: " + error.message);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            setupRealtimeListeners(user);
+        }
+    });
+
+
+    // --- FUNCTIONS ---
+
+    window.toggleAdminPanel = () => {
+        document.getElementById('adminPanel').classList.toggle('active');
+    };
+
+    window.addCategory = async () => {
+        if (!currentUser) return alert("Belum terhubung ke database.");
+        const input = document.getElementById('newCategory');
+        const val = input.value.trim();
+        const exists = categories.find(c => c.name.toLowerCase() === val.toLowerCase());
+        
+        if (val && !exists) {
+            document.getElementById('loading').style.display = 'block';
+            await addDoc(collection(db, "categories"), { name: val });
+            input.value = '';
+            document.getElementById('loading').style.display = 'none';
+        } else if (exists) {
+            alert("Kategori sudah ada!");
+        }
+    };
+
+    window.removeCategory = async (id) => {
+        if(confirm("Hapus kategori ini?")) {
+            await deleteDoc(doc(db, "categories", id));
+        }
+    }
+
+    window.addExpense = async () => {
+        if (!currentUser) return alert("Belum terhubung ke database.");
+        const name = document.getElementById('expenseName').value;
+        const amount = document.getElementById('expenseAmount').value;
+        const selectedMonth = monthPicker.value;
+
+        if (name && amount) {
+            document.getElementById('loading').style.display = 'block';
+            await addDoc(collection(db, "expenses"), {
+                name: name,
+                amount: parseInt(amount),
+                monthKey: selectedMonth,
+                createdAt: new Date().toISOString()
+            });
+            document.getElementById('expenseName').value = '';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('loading').style.display = 'none';
+        } else {
+            alert("Mohon isi nama dan nominal.");
+        }
+    };
+
+    window.deleteExpense = async (id) => {
+        if(confirm('Hapus pengeluaran ini?')) {
+            await deleteDoc(doc(db, "expenses", id));
+        }
+    };
+
+    window.addDebt = async () => {
+        if (!currentUser) return alert("Belum terhubung ke database.");
+        const name = document.getElementById('debtName').value;
+        const amount = document.getElementById('debtAmount').value;
+
+        if (name && amount) {
+            document.getElementById('loading').style.display = 'block';
+            await addDoc(collection(db, "debts"), {
+                borrower: name,
+                amount: parseInt(amount),
+                isPaid: false,
+                createdAt: new Date().toISOString()
+            });
+            document.getElementById('debtName').value = '';
+            document.getElementById('debtAmount').value = '';
+            document.getElementById('loading').style.display = 'none';
+        } else {
+            alert("Mohon isi data.");
+        }
+    };
+
+    window.toggleDebtStatus = async (id, currentStatus) => {
+        await updateDoc(doc(db, "debts", id), {
+            isPaid: !currentStatus
+        });
+    };
+
+    window.deleteDebt = async (id) => {
+        if(confirm('Hapus data ini?')) {
+            await deleteDoc(doc(db, "debts", id));
+        }
+    };
+
+    window.exportData = () => {
+        const data = {
+            expenses: expenses,
+            debts: debts,
+            categories: categories,
+            exportDate: new Date().toISOString()
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "shodiqin_cloud_backup.json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    };
+
+    // --- UI HELPERS ---
+
+    function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+    }
+
+    function getMonthName(monthKey) {
+        const [year, month] = monthKey.split('-');
+        const date = new Date(year, month - 1);
+        return date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+    }
+
+    // --- RENDER LOGIC ---
+
+    function renderCategories() {
+        const container = document.getElementById('categoryList');
+        const datalist = document.getElementById('dynamicExpenses');
+        container.innerHTML = '';
+        datalist.innerHTML = '';
+
+        if(categories.length === 0) {
+            container.innerHTML = '<span style="font-size:11px; opacity:0.5">Belum ada kategori.</span>';
+        }
+
+        categories.forEach((cat) => {
+            const tag = document.createElement('div');
+            tag.className = 'category-tag';
+            tag.innerHTML = `${cat.name} <span onclick="removeCategory('${cat.id}')">×</span>`;
+            container.appendChild(tag);
+
+            const option = document.createElement('option');
+            option.value = cat.name;
+            datalist.appendChild(option);
+        });
+    }
+
+    function render() {
+        const selectedMonth = monthPicker.value;
+        
+        // --- 1. EXPENSES ---
+        const expenseList = document.getElementById('expenseList');
+        expenseList.innerHTML = '';
+        const filteredExpenses = expenses.filter(item => item.monthKey === selectedMonth);
+        let totalExp = 0;
+        
+        if (filteredExpenses.length === 0) {
+            expenseList.innerHTML = `<li style="justify-content:center; opacity:0.5; border:none; font-size:12px">Belum ada pengeluaran di bulan ini.</li>`;
+        }
+
+        filteredExpenses.forEach(item => {
+            totalExp += item.amount;
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="item-info"><span class="item-name">${item.name}</span><span class="item-amount">${formatRupiah(item.amount)}</span></div>
+                <button class="delete" onclick="deleteExpense('${item.id}')">✕</button>`;
+            expenseList.appendChild(li);
+        });
+        document.getElementById('totalExpense').innerText = formatRupiah(totalExp);
+
+        // --- 2. DEBTS ---
+        const debtList = document.getElementById('debtList');
+        debtList.innerHTML = '';
+        let totalUnpaid = 0; let totalGlobalDebt = 0; let totalGlobalPaid = 0;
+
+        if (debts.length === 0) {
+             debtList.innerHTML = `<li style="justify-content:center; opacity:0.5; border:none; font-size:12px">Belum ada data piutang.</li>`;
+        }
+
+        debts.forEach(item => {
+            totalGlobalDebt += item.amount;
+            if(item.isPaid) totalGlobalPaid += item.amount; else totalUnpaid += item.amount;
+
+            const statusClass = item.isPaid ? 'badge-lunas' : 'badge-belum';
+            const statusText = item.isPaid ? 'LUNAS' : 'BELUM';
+            const btnText = item.isPaid ? 'BATAL' : 'LUNAS';
+            const btnColor = item.isPaid ? 'rgba(255,255,255,0.05)' : 'rgba(16, 185, 129, 0.2)';
+            const btnTextColor = item.isPaid ? '#64748b' : '#34d399';
+            const btnBorder = item.isPaid ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(16, 185, 129, 0.4)';
+
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="item-info">
+                    <span class="item-name">${item.borrower} <span class="badge ${statusClass}">${statusText}</span></span>
+                    <span class="item-amount">${formatRupiah(item.amount)}</span>
+                    <span style="font-size:10px; color:var(--text-muted); margin-top:3px">${new Date(item.createdAt).toLocaleDateString('id-ID')}</span>
+                </div>
+                <div class="item-actions">
+                    <button class="status-btn" style="background:${btnColor}; color:${btnTextColor}; border:${btnBorder}" onclick="toggleDebtStatus('${item.id}', ${item.isPaid})">${btnText}</button>
+                    <button class="delete" onclick="deleteDebt('${item.id}')">✕</button>
+                </div>`;
+            debtList.appendChild(li);
+        });
+        document.getElementById('totalUnpaid').innerText = formatRupiah(totalUnpaid);
+        document.getElementById('globalDebt').innerText = formatRupiah(totalGlobalDebt);
+        document.getElementById('globalPaid').innerText = formatRupiah(totalGlobalPaid);
+
+        // --- 3. SUMMARY TABLES ---
+        const summaryTable = document.getElementById('monthlySummaryTable');
+        const yearlyTable = document.getElementById('yearlySummaryTable');
+        summaryTable.innerHTML = ''; yearlyTable.innerHTML = '';
+        let monthlyGroups = {}; let yearlyGroups = {};
+
+        expenses.forEach(item => {
+            if (!monthlyGroups[item.monthKey]) monthlyGroups[item.monthKey] = 0; monthlyGroups[item.monthKey] += item.amount;
+            let yearKey = item.monthKey.split('-')[0]; if (!yearlyGroups[yearKey]) yearlyGroups[yearKey] = 0; yearlyGroups[yearKey] += item.amount;
+        });
+
+        Object.keys(monthlyGroups).sort().reverse().forEach(key => {
+            const tr = document.createElement('tr');
+            if(key === selectedMonth) { tr.style.background = "rgba(59, 130, 246, 0.2)"; tr.style.boxShadow = "0 0 10px rgba(59, 130, 246, 0.1)"; }
+            tr.innerHTML = `<td>${getMonthName(key)}</td><td style="text-align:right">${formatRupiah(monthlyGroups[key])}</td>`;
+            summaryTable.appendChild(tr);
+        });
+
+        Object.keys(yearlyGroups).sort().reverse().forEach(key => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${key}</td><td style="text-align:right; font-weight:bold; color:#60a5fa">${formatRupiah(yearlyGroups[key])}</td>`;
+            yearlyTable.appendChild(tr);
+        });
+    }
+</script>
+
+</body>
+</html>
